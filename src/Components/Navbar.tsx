@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiShoppingCart, FiSearch, FiUser, FiLogOut, FiSun, FiMoon, FiMenu, FiX } from "react-icons/fi";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/context/AuthContext";
@@ -9,9 +9,14 @@ import { useAuth } from "@/context/AuthContext";
 export default function Navbar() {
   const { user, logout } = useAuth();
 
-  // UI-only এখনের জন্য, পরে actually wire করা হবে
+  // হাইড্রেশন এরর এড়ানোর জন্য mounted স্টেট ব্যবহার করা হলো
+  const [mounted, setMounted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
@@ -42,12 +47,13 @@ export default function Navbar() {
           <Link href="/products" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
             Products
           </Link>
-          {user && (
+          
+          {mounted && user && (
             <Link href="/orders" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
               My Orders
             </Link>
           )}
-          {user?.role === "ADMIN" && (
+          {mounted && user?.role === "ADMIN" && (
             <Link href="/admin" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
               Admin Dashboard
             </Link>
@@ -63,7 +69,6 @@ export default function Navbar() {
             <FiSearch size={20} />
           </button>
 
-          {/* Cart - UI placeholder, backend এ Cart API নাই, পরে ঠিক করা হবে */}
           <Link
             href="/cart"
             aria-label="Cart"
@@ -72,7 +77,6 @@ export default function Navbar() {
             <FiShoppingCart size={20} />
           </Link>
 
-          {/* Dark mode - UI placeholder, পরে actual করা হবে */}
           <button
             onClick={toggleTheme}
             aria-label="Toggle Theme"
@@ -81,41 +85,43 @@ export default function Navbar() {
             {isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
           </button>
 
-          {/* Real Auth State */}
-          {user ? (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600 dark:text-zinc-300 hidden lg:inline">
-                Hi, {user.name.split(" ")[0]}
-              </span>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={logout}
-                className="flex items-center gap-2 bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-all"
-              >
-                <FiLogOut size={16} />
-                Logout
-              </motion.button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <motion.div whileTap={{ scale: 0.95 }}>
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-orange-500 px-3 py-2 transition-colors"
+          {/* Real Auth State with Mounted Check */}
+          {mounted && (
+            user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 dark:text-zinc-300 hidden lg:inline">
+                  Hi, {user.name?.split(" ")[0]}
+                </span>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={logout}
+                  className="flex items-center gap-2 bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-all"
                 >
-                  Login
-                </Link>
-              </motion.div>
-              <motion.div whileTap={{ scale: 0.95 }}>
-                <Link
-                  href="/register"
-                  className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-500 dark:hover:bg-orange-500 dark:hover:text-white transition-all shadow-sm"
-                >
-                  <FiUser size={16} />
-                  Signup
-                </Link>
-              </motion.div>
-            </div>
+                  <FiLogOut size={16} />
+                  Logout
+                </motion.button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <Link
+                    href="/login"
+                    className="text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-orange-500 px-3 py-2 transition-colors"
+                  >
+                    Login
+                  </Link>
+                </motion.div>
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <Link
+                    href="/register"
+                    className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-500 dark:hover:bg-orange-500 dark:hover:text-white transition-all shadow-sm"
+                  >
+                    <FiUser size={16} />
+                    Signup
+                  </Link>
+                </motion.div>
+              </div>
+            )
           )}
         </div>
 
@@ -159,12 +165,12 @@ export default function Navbar() {
               <Link href="/products" onClick={() => setMobileMenuOpen(false)} className="hover:text-orange-500">
                 Products
               </Link>
-              {user && (
+              {mounted && user && (
                 <Link href="/orders" onClick={() => setMobileMenuOpen(false)} className="hover:text-orange-500">
                   My Orders
                 </Link>
               )}
-              {user?.role === "ADMIN" && (
+              {mounted && user?.role === "ADMIN" && (
                 <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="hover:text-orange-500">
                   Admin Dashboard
                 </Link>
@@ -172,33 +178,35 @@ export default function Navbar() {
             </div>
 
             <div className="pt-4 border-t border-gray-100 dark:border-zinc-800 flex flex-col gap-3">
-              {user ? (
-                <button
-                  onClick={() => {
-                    logout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium"
-                >
-                  <FiLogOut size={16} /> Logout
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex-1 text-center py-2.5 rounded-lg border border-gray-300 dark:border-zinc-700 text-sm font-medium dark:text-white"
+              {mounted && (
+                user ? (
+                  <button
+                    onClick={() => {
+                      logout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center justify-center gap-2 w-full bg-red-500 text-white py-2.5 rounded-lg text-sm font-medium"
                   >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex-1 text-center py-2.5 rounded-lg bg-orange-500 text-white text-sm font-medium"
-                  >
-                    Signup
-                  </Link>
-                </div>
+                    <FiLogOut size={16} /> Logout
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-1 text-center py-2.5 rounded-lg border border-gray-300 dark:border-zinc-700 text-sm font-medium dark:text-white"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-1 text-center py-2.5 rounded-lg bg-orange-500 text-white text-sm font-medium"
+                    >
+                      Signup
+                    </Link>
+                  </div>
+                )
               )}
             </div>
           </motion.div>
