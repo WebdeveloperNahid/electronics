@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { User, ApiResponse } from "@/types";
@@ -16,23 +16,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // ১. useState-এর ভেতরেই সরাসরি লোকালস্টোরেজ থেকে ইনিশিয়াল ডেটা রিড করা হলো (useEffect ছাড়াই)
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window === "undefined") return null;
+  // সবসময় null দিয়ে শুরু (Server আর Client-এর প্রথম render মিলে যাবে)
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  // এইটা শুধু Client-এ (hydration-এর পরে) চলবে, তাই mismatch হবে না
+  useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");
       const token = localStorage.getItem("token");
       if (storedUser && token) {
-        return JSON.parse(storedUser);
+        setUser(JSON.parse(storedUser));
       }
     } catch {
-      // যদি JSON Parse এ কোনো এরর হয়
+      // JSON parse error হলে ignore করো
+    } finally {
+      setLoading(false);
     }
-    return null;
-  });
-
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  }, []);
 
   const login = async (email: string, password: string) => {
     const res: ApiResponse<{ user: User; token: string }> = await apiFetch(

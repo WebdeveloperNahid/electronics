@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { FiShoppingCart, FiSearch, FiUser, FiLogOut, FiSun, FiMoon, FiMenu, FiX } from "react-icons/fi";
+import { FiShoppingCart, FiSearch, FiUser, FiLogOut, FiSun, FiMoon, FiMenu, FiX, FiGrid } from "react-icons/fi";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
 
-  // হাইড্রেশন এরর এড়ানোর জন্য mounted স্টেট ব্যবহার করা হলো
   const [mounted, setMounted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,6 +18,9 @@ export default function Navbar() {
   }, []);
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
+  // role অনুযায়ী সঠিক dashboard route ঠিক করা
+  const dashboardHref = user?.role === "ADMIN" ? "/dashboard/admin" : "/dashboard/user";
 
   return (
     <nav className="sticky top-0 z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-gray-100 dark:border-zinc-800 shadow-sm transition-colors duration-300">
@@ -47,15 +49,15 @@ export default function Navbar() {
           <Link href="/products" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
             Products
           </Link>
-          
+
+          {/* একটাই "Dashboard" link, role অনুযায়ী সঠিক জায়গায় নিয়ে যায় */}
           {mounted && user && (
-            <Link href="/orders" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-              My Orders
-            </Link>
-          )}
-          {mounted && user?.role === "ADMIN" && (
-            <Link href="/admin" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-              Admin Dashboard
+            <Link
+              href={dashboardHref}
+              className="flex items-center gap-1.5 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+            >
+              <FiGrid size={15} />
+              Dashboard
             </Link>
           )}
         </div>
@@ -85,7 +87,6 @@ export default function Navbar() {
             {isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
           </button>
 
-          {/* Real Auth State with Mounted Check */}
           {mounted && (
             user ? (
               <div className="flex items-center gap-3">
@@ -166,13 +167,12 @@ export default function Navbar() {
                 Products
               </Link>
               {mounted && user && (
-                <Link href="/orders" onClick={() => setMobileMenuOpen(false)} className="hover:text-orange-500">
-                  My Orders
-                </Link>
-              )}
-              {mounted && user?.role === "ADMIN" && (
-                <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="hover:text-orange-500">
-                  Admin Dashboard
+                <Link
+                  href={dashboardHref}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="hover:text-orange-500"
+                >
+                  Dashboard
                 </Link>
               )}
             </div>

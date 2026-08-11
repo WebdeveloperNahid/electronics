@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { apiFetch } from "@/lib/api";
 
 interface Order {
   id: string;
@@ -17,13 +18,16 @@ interface Order {
 }
 
 export default function OrdersPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // auth context এখনো loading হলে অপেক্ষা করো, নাইলে সময়ের আগেই redirect হয়ে যাবে
+    if (authLoading) return;
+
     if (!user) {
       router.push("/login");
       return;
@@ -31,22 +35,9 @@ export default function OrdersPage() {
 
     const fetchOrders = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://electronics-backend-ten.vercel.app";
-        const response = await fetch(`${apiUrl}/api/orders`, {
-          headers: {
-            "Content-Type": "application/json",
-            // যদি টোকেন পাঠানোর প্রয়োজন হয়:
-            // "Authorization": `Bearer ${user.token}`
-          },
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch orders");
-        }
-
-        setOrders(data.data || data);
+        // apiFetch localStorage থেকে token নিয়ে Authorization header এ পাঠায় automatically
+        const res = await apiFetch("/api/orders");
+        setOrders(res?.data || []);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -59,9 +50,9 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <p className="text-gray-600 dark:text-zinc-400">Loading your orders...</p>
