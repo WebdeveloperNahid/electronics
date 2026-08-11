@@ -26,7 +26,6 @@ export default function AdminPage() {
         setOrderCount(orders.length);
         setPendingCount(orders.filter((o) => o.status === "PENDING").length);
       } catch (err) {
-        // stats load fail হলেও page ভেঙে যাবে না, শুধু "-" দেখাবে
         console.error("Failed to load dashboard stats", err);
       }
     };
@@ -42,22 +41,22 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Admin Dashboard</h1>
-      <p className="text-sm text-gray-400 mb-8">Overview of your store</p>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Admin Dashboard</h1>
+      <p className="text-sm text-gray-400 dark:text-zinc-500 mb-8">Overview of your store</p>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm flex items-center gap-4"
+            className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5 shadow-sm flex items-center gap-4 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
               <stat.icon className="text-orange-500" size={18} />
             </div>
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide">{stat.label}</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-xs text-gray-400 dark:text-zinc-500 uppercase tracking-wide">{stat.label}</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">
                 {stat.value === null ? "-" : stat.value}
               </p>
             </div>
@@ -66,32 +65,32 @@ export default function AdminPage() {
       </div>
 
       {/* Quick Links */}
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+      <h2 className="text-sm font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
         Quick Actions
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Link
-          href="/admin/products/add"
-          className="flex items-center gap-3 bg-white border border-gray-100 rounded-xl p-5 hover:border-orange-300 hover:shadow-sm transition-all"
+          href="/dashboard/admin/add-products"
+          className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5 hover:border-orange-300 dark:hover:border-orange-500/50 hover:shadow-sm transition-all"
         >
           <FiPlusCircle className="text-orange-500" size={20} />
-          <span className="text-sm font-medium text-gray-800">Add Product</span>
+          <span className="text-sm font-medium text-gray-800 dark:text-zinc-200">Add Product</span>
         </Link>
 
         <Link
-          href="/admin/products"
-          className="flex items-center gap-3 bg-white border border-gray-100 rounded-xl p-5 hover:border-orange-300 hover:shadow-sm transition-all"
+          href="/products"
+          className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5 hover:border-orange-300 dark:hover:border-orange-500/50 hover:shadow-sm transition-all"
         >
           <FiBox className="text-orange-500" size={20} />
-          <span className="text-sm font-medium text-gray-800">View All Products</span>
+          <span className="text-sm font-medium text-gray-800 dark:text-zinc-200">View All Products</span>
         </Link>
 
         <Link
           href="/admin/orders"
-          className="flex items-center gap-3 bg-white border border-gray-100 rounded-xl p-5 hover:border-orange-300 hover:shadow-sm transition-all"
+          className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl p-5 hover:border-orange-300 dark:hover:border-orange-500/50 hover:shadow-sm transition-all"
         >
           <FiClipboard className="text-orange-500" size={20} />
-          <span className="text-sm font-medium text-gray-800">Order History</span>
+          <span className="text-sm font-medium text-gray-800 dark:text-zinc-200">Order History</span>
         </Link>
       </div>
     </div>

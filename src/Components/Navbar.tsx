@@ -2,30 +2,41 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { FiShoppingCart, FiSearch, FiUser, FiLogOut, FiSun, FiMoon, FiMenu, FiX, FiGrid } from "react-icons/fi";
+import {
+  FiShoppingCart,
+  FiSearch,
+  FiUser,
+  FiLogOut,
+  FiSun,
+  FiMoon,
+  FiMenu,
+  FiX,
+  FiGrid,
+} from "react-icons/fi";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "next-themes";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
 
   const [mounted, setMounted] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   // role অনুযায়ী সঠিক dashboard route ঠিক করা
-  const dashboardHref = user?.role === "ADMIN" ? "/dashboard/admin" : "/dashboard/user";
+  const dashboardHref =
+    user?.role === "ADMIN" ? "/dashboard/admin" : "/dashboard/user";
 
   return (
     <nav className="sticky top-0 z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-gray-100 dark:border-zinc-800 shadow-sm transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-10 h-10 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-xl tracking-wider shadow-md group-hover:bg-orange-500 dark:group-hover:bg-orange-500 dark:group-hover:text-white transition-all duration-300">
@@ -43,10 +54,16 @@ export default function Navbar() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-zinc-300">
-          <Link href="/" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+          <Link
+            href="/"
+            className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+          >
             Home
           </Link>
-          <Link href="/products" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+          <Link
+            href="/products"
+            className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+          >
             Products
           </Link>
 
@@ -84,11 +101,11 @@ export default function Navbar() {
             aria-label="Toggle Theme"
             className="p-2 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-200 hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500 transition-all"
           >
-            {isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
+            {mounted && theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
           </button>
 
-          {mounted && (
-            user ? (
+          {mounted &&
+            (user ? (
               <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-600 dark:text-zinc-300 hidden lg:inline">
                   Hi, {user.name?.split(" ")[0]}
@@ -122,8 +139,7 @@ export default function Navbar() {
                   </Link>
                 </motion.div>
               </div>
-            )
-          )}
+            ))}
         </div>
 
         {/* Mobile Controls */}
@@ -133,10 +149,14 @@ export default function Navbar() {
             aria-label="Toggle Theme"
             className="p-2 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-200"
           >
-            {isDarkMode ? <FiSun size={16} /> : <FiMoon size={16} />}
+           {mounted && theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
           </button>
 
-          <Link href="/cart" aria-label="Cart" className="relative text-gray-700 dark:text-zinc-200 p-1">
+          <Link
+            href="/cart"
+            aria-label="Cart"
+            className="relative text-gray-700 dark:text-zinc-200 p-1"
+          >
             <FiShoppingCart size={20} />
           </Link>
 
@@ -160,10 +180,18 @@ export default function Navbar() {
             className="md:hidden bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-800 px-6 py-6 space-y-4"
           >
             <div className="flex flex-col space-y-3 font-medium text-gray-700 dark:text-zinc-300">
-              <Link href="/" onClick={() => setMobileMenuOpen(false)} className="hover:text-orange-500">
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-orange-500"
+              >
                 Home
               </Link>
-              <Link href="/products" onClick={() => setMobileMenuOpen(false)} className="hover:text-orange-500">
+              <Link
+                href="/products"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-orange-500"
+              >
                 Products
               </Link>
               {mounted && user && (
@@ -178,8 +206,8 @@ export default function Navbar() {
             </div>
 
             <div className="pt-4 border-t border-gray-100 dark:border-zinc-800 flex flex-col gap-3">
-              {mounted && (
-                user ? (
+              {mounted &&
+                (user ? (
                   <button
                     onClick={() => {
                       logout();
@@ -206,8 +234,7 @@ export default function Navbar() {
                       Signup
                     </Link>
                   </div>
-                )
-              )}
+                ))}
             </div>
           </motion.div>
         )}

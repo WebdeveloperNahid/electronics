@@ -11,7 +11,7 @@ export default function ProductGrid() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // তোমার ব্যাকএন্ডের রেসপন্স স্ট্রাকচার অনুযায়ী res.data হ্যান্ডেল করা হলো
+    // ব্যাকএন্ডের রেসপন্স স্ট্রাকচার অনুযায়ী res.data হ্যান্ডেল করা হলো
     apiFetch("/api/products")
       .then((res) => {
         if (res?.success && Array.isArray(res.data)) {
@@ -28,7 +28,7 @@ export default function ProductGrid() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-16 text-center text-gray-400">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center text-gray-400 dark:text-zinc-500">
         Loading products...
       </div>
     );
@@ -36,7 +36,7 @@ export default function ProductGrid() {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-16 text-center text-red-500">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center text-red-500 dark:text-red-400">
         Error: {error}
       </div>
     );
@@ -48,7 +48,7 @@ export default function ProductGrid() {
         Featured products
       </h2>
       {products.length === 0 ? (
-        <p className="text-gray-400 text-center py-10">No products available yet.</p>
+        <p className="text-gray-400 dark:text-zinc-500 text-center py-10">No products available yet.</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {products.map((product) => (

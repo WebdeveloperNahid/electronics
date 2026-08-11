@@ -10,6 +10,8 @@ interface Product {
   description: string;
   price: number;
   stock: number;
+  image?: string;
+  imageUrl?: string;
   category?: {
     name: string;
   };
@@ -108,13 +110,15 @@ export default function ProductDetailsPage() {
         <p className="text-red-500 mb-4">{error || "Product not found"}</p>
         <button
           onClick={() => router.push("/products")}
-          className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium"
+          className="bg-orange-500 text-white px-4 py-2 font-medium"
         >
           Back to Products
         </button>
       </div>
     );
   }
+
+  const productImage = product.image || product.imageUrl;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -125,12 +129,25 @@ export default function ProductDetailsPage() {
         <FiArrowLeft size={18} /> Back
       </button>
 
-      {successMessage && <div className="mb-4 p-4 bg-green-100 text-green-600 rounded-lg">{successMessage}</div>}
-      {error && <div className="mb-4 p-4 bg-red-100 text-red-600 rounded-lg">{error}</div>}
+      {successMessage && <div className="mb-4 p-4 bg-green-100 text-green-600">{successMessage}</div>}
+      {error && <div className="mb-4 p-4 bg-red-100 text-red-600">{error}</div>}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 rounded-2xl shadow-sm">
-        <div className="bg-gray-100 dark:bg-zinc-800 rounded-xl h-80 flex items-center justify-center text-gray-400 dark:text-zinc-500 font-semibold">
-          Product Image Preview
+      {/* মূল কন্টেইনার থেকে রাউন্ড সরিয়ে দেওয়া হয়েছে */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 shadow-sm">
+        
+        {/* প্রোডাক্ট ইমেজ সেকশন এবং ইমেজ থেকে রাউন্ড বাদ দেওয়া হয়েছে */}
+        <div className="bg-gray-100 dark:bg-zinc-800 h-80 relative flex items-center justify-center overflow-hidden">
+          {productImage ? (
+            <img
+              src={productImage}
+              alt={product.name}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <span className="text-gray-400 dark:text-zinc-500 font-semibold">
+              No Image Available
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col justify-between">
@@ -161,14 +178,15 @@ export default function ProductDetailsPage() {
                 max={product.stock}
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
-                className="w-20 px-3 py-1.5 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 dark:text-white text-center"
+                className="w-20 px-3 py-1.5 border dark:bg-zinc-800 dark:border-zinc-700 dark:text-white text-center"
               />
             </div>
 
+            {/* বাটন থেকে রাউন্ড পুরোপুরি বাদ দেওয়া হয়েছে */}
             <button
               onClick={handleOrder}
               disabled={ordering || product.stock <= 0}
-              className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white font-medium py-3 rounded-xl transition-colors shadow-sm"
+              className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white font-medium py-3 transition-colors shadow-sm"
             >
               <FiShoppingCart size={18} />
               {ordering ? "Processing..." : product.stock > 0 ? "Place Order Now" : "Out of Stock"}
