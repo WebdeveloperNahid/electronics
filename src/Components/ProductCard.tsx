@@ -1,13 +1,28 @@
 "use client";
 
 import { Product } from "@/types";
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { FiEye } from "react-icons/fi";
+import { FiArrowUpRight } from "react-icons/fi";
 
-export default function ProductCard({ product }: { product: Product }) {
-  // প্রাইস ফরম্যাটিং
+// Used by the parent grid's stagger (initial="hidden" whileInView="show")
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 32 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+export default function ProductCard({
+  product,
+  isNew = false,
+}: {
+  product: Product;
+  isNew?: boolean;
+}) {
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -15,57 +30,67 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
-      className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-4 flex flex-col h-full group relative transition-colors"
+      variants={cardVariants}
+      whileHover={{ y: -6 }}
+      className="group relative flex h-full flex-col border border-zinc-200 bg-white transition-colors duration-300 hover:border-[#FFB900] dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-[#FFB900]"
     >
-      {/* Product Image Area */}
+      {/* Image */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full aspect-square bg-[#f8f8f8] dark:bg-zinc-800 mb-4 flex items-center justify-center overflow-hidden relative"
+        className="relative block aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-800"
       >
         {product.image ? (
           <Image
             src={product.image}
             alt={product.name}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
-          <span className="text-gray-400 dark:text-zinc-500 text-xs font-light">
+          <span className="absolute inset-0 flex items-center justify-center text-xs text-zinc-400 dark:text-zinc-500">
             Product image
           </span>
         )}
+
+        {isNew && (
+          <span className="absolute left-0 top-3 bg-[#FFB900] px-3 py-1 text-[11px] font-extrabold text-black">
+            New
+          </span>
+        )}
+
+        {/* Hover bar */}
+        <span className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-between bg-zinc-900 px-4 py-3 text-xs font-bold text-white transition-transform duration-300 group-hover:translate-y-0 dark:bg-[#FFB900] dark:text-black">
+          View details
+          <FiArrowUpRight size={16} />
+        </span>
       </Link>
 
-      {/* Product Info */}
-      <div className="flex flex-col flex-grow text-center">
-        {/* Category Name */}
-        <span className="text-[10px] text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-1">
+      {/* Info */}
+      <div className="flex flex-1 flex-col p-4">
+        <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
           {product.category?.name || "Electronics"}
         </span>
 
-        {/* Product Name */}
-        <h3 className="text-gray-800 dark:text-zinc-200 text-xs font-normal mb-2 truncate">
-          <Link href={`/products/${product.id}`} className="hover:underline">
+        <h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-zinc-900 dark:text-zinc-100">
+          <Link
+            href={`/products/${product.id}`}
+            className="transition-colors hover:text-[#b37f00] dark:hover:text-[#FFB900]"
+          >
             {product.name}
           </Link>
         </h3>
 
-        {/* Product Price */}
-        <div className="text-gray-900 dark:text-white font-semibold text-xs mb-3">
-          {formattedPrice}
-        </div>
-
-        {/* View Details Button */}
-        <div className="mt-auto pt-2 border-t border-gray-100 dark:border-zinc-800">
+        <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+          <span className="text-lg font-black text-zinc-900 dark:text-white">
+            {formattedPrice}
+          </span>
           <Link
             href={`/products/${product.id}`}
-            className="w-full inline-flex items-center justify-center gap-1.5 bg-gray-900 dark:bg-zinc-900 text-white dark:text-zinc-200 border border-gray-200 dark:border-zinc-700 py-2 text-[11px] font-medium hover:bg-orange-500 hover:text-white hover:border-orange-500 dark:hover:bg-orange-500 dark:hover:text-white dark:hover:border-orange-500 transition-colors duration-200"
+            aria-label={`View ${product.name}`}
+            className="flex h-9 w-9 items-center justify-center bg-zinc-100 text-zinc-900 transition-all duration-300 group-hover:bg-[#FFB900] group-hover:text-black dark:bg-zinc-800 dark:text-white dark:group-hover:text-black"
           >
-            <FiEye size={13} />
-            View Details
+            <FiArrowUpRight size={17} />
           </Link>
         </div>
       </div>
