@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,419 +10,746 @@ import {
   useReducedMotion,
   type Variants,
 } from "motion/react";
-import { FiArrowRight, FiArrowUpRight, FiCheck } from "react-icons/fi";
+import {
+  FiArrowDownRight,
+  FiArrowRight,
+  FiCheck,
+  FiChevronLeft,
+  FiChevronRight,
+  FiHeadphones,
+  FiRefreshCw,
+  FiShield,
+  FiTruck,
+} from "react-icons/fi";
 
-// Each slide (image + text) stays this many seconds, then changes automatically
-const SLIDE_DURATION = 2;
-const EASE = [0.22, 1, 0.36, 1] as const;
-
-type Slide = {
-  id: number;
+type HeroSlide = {
+  id: string;
+  eyebrow: string;
+  title: string;
+  highlight: string;
+  description: string;
   category: string;
-  lines: [string, string];
-  text: string;
-  name: string;
+  product: string;
   price: string;
+  oldPrice: string;
+  discount: string;
+  tag: string;
   image: string;
+  accent: string;
 };
 
-const SLIDES: Slide[] = [
+const slides: HeroSlide[] = [
   {
-    id: 1,
+    id: "audio",
+    eyebrow: "NEXT-LEVEL SOUND",
+    title: "Feel Every",
+    highlight: "Beat.",
+    description:
+      "Discover immersive audio, rich bass, and crystal-clear sound designed for every moment.",
     category: "Audio",
-    lines: ["Sound that", "moves with you."],
-    text: "Immersive sound with active noise cancellation.",
-    name: "Pro Wireless Headphones",
-    price: "$299.00",
+    product: "Premium Wireless Headphones",
+    price: "$129.00",
+    oldPrice: "$169.00",
+    discount: "24%",
+    tag: "BEST SELLER",
     image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1000&q=85",
+    accent: "#FFB900",
   },
   {
-    id: 2,
+    id: "smartphones",
+    eyebrow: "SMARTER EVERY DAY",
+    title: "Power in",
+    highlight: "Your Hands.",
+    description:
+      "Explore powerful smartphones with stunning displays, brilliant cameras, and effortless performance.",
     category: "Smartphones",
-    lines: ["Flagship power,", "pocket size."],
-    text: "The new 5G series, built for everyday life.",
-    name: "Waterproof Smartphone",
-    price: "$859.00",
+    product: "Next-Gen Smartphone",
+    price: "$699.00",
+    oldPrice: "$799.00",
+    discount: "12%",
+    tag: "TOP PICK",
     image:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=1000&q=85",
+    accent: "#38BDF8",
   },
   {
-    id: 3,
-    category: "TV and displays",
-    lines: ["Cinema at", "home, in 4K."],
-    text: "Crisp picture that turns movie night into an event.",
-    name: "Ultra HD Smart TV",
-    price: "$1,249.00",
+    id: "smartwatches",
+    eyebrow: "YOUR DAY, UPGRADED",
+    title: "Stay Ahead.",
+    highlight: "Stay Connected.",
+    description:
+      "Track your goals, manage your day, and keep your essentials close with smart wearable technology.",
+    category: "Smart Watches",
+    product: "Smart Fitness Watch",
+    price: "$189.00",
+    oldPrice: "$229.00",
+    discount: "17%",
+    tag: "SMART CHOICE",
     image:
-      "https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=85",
+    accent: "#34D399",
   },
   {
-    id: 4,
-    category: "Smart watches",
-    lines: ["Your whole day,", "on your wrist."],
-    text: "Track workouts, sleep and notifications at a glance.",
-    name: "Smart Watch Series 8",
-    price: "$399.00",
+    id: "laptops",
+    eyebrow: "BUILT FOR BIG IDEAS",
+    title: "Work Smart.",
+    highlight: "Go Further.",
+    description:
+      "Upgrade your setup with modern laptops made for productivity, creativity, and everyday performance.",
+    category: "Laptops",
+    product: "Performance Laptop",
+    price: "$999.00",
+    oldPrice: "$1,199.00",
+    discount: "17%",
+    tag: "PRO PERFORMANCE",
     image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1000&q=85",
+    accent: "#A78BFA",
+  },
+  {
+    id: "gaming",
+    eyebrow: "LEVEL UP YOUR PLAY",
+    title: "Game On.",
+    highlight: "No Limits.",
+    description:
+      "Bring your gaming setup to life with immersive gear built for precision, comfort, and fun.",
+    category: "Gaming",
+    product: "Pro Gaming Headset",
+    price: "$149.00",
+    oldPrice: "$189.00",
+    discount: "21%",
+    tag: "GAMER FAVORITE",
+    image:
+      "https://images.unsplash.com/photo-1599669454699-248893623440?auto=format&fit=crop&w=1000&q=85",
+    accent: "#F0ABFC",
+  },
+  {
+    id: "displays",
+    eyebrow: "A BETTER VIEW",
+    title: "See More.",
+    highlight: "Feel More.",
+    description:
+      "Transform your entertainment space with vivid visuals and a more immersive viewing experience.",
+    category: "TV & Displays",
+    product: "Ultra HD Smart Display",
+    price: "$549.00",
+    oldPrice: "$649.00",
+    discount: "15%",
+    tag: "HOME FAVORITE",
+    image:
+      "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1000&q=85",
+    accent: "#22D3EE",
   },
 ];
 
-const TRUST = [
-  "100% original products",
-  "Fast and safe delivery",
-  "24/7 customer support",
+const benefits = [
+  {
+    icon: FiTruck,
+    title: "Fast Delivery",
+    description: "Delivery options at checkout",
+  },
+  {
+    icon: FiShield,
+    title: "Secure Checkout",
+    description: "Shop with confidence",
+  },
+  {
+    icon: FiRefreshCw,
+    title: "Easy Returns",
+    description: "Hassle-free returns",
+  },
+  {
+    icon: FiHeadphones,
+    title: "Customer Support",
+    description: "We're here to help",
+  },
 ];
 
-const MARQUEE_ITEMS = [
-  "Smartphones",
-  "Laptops",
-  "Audio",
-  "Smart watches",
-  "Cameras",
-  "Gaming",
-  "Accessories",
-];
+const INTERVAL = 5000;
+const TICK = 50;
 
-const TOTAL = SLIDES.length;
+/**
+ * Theme variables. Background and text colors always come from the SAME set,
+ * so they flip together and can never end up as white-on-white.
+ */
+const THEME_VARS = [
+  "[--h-bg:#FFFFFF]",
+  "[--h-fg:#09090B]",
+  "[--h-muted:#27272A]",
+  "[--h-subtle:#52525B]",
+  "[--h-surface:#FFFFFF]",
+  "[--h-border:#A1A1AA]",
+  "[--h-track:#D4D4D8]",
+  "[--h-dot:#A1A1AA]",
+  "[--h-shadow:#18181B]",
+  "[--h-icon:#09090B]",
+  "[--h-ghost:rgba(82,82,91,0.35)]",
+  "dark:[--h-bg:#09090B]",
+  "dark:[--h-fg:#FFFFFF]",
+  "dark:[--h-muted:#E4E4E7]",
+  "dark:[--h-subtle:#A1A1AA]",
+  "dark:[--h-surface:#18181B]",
+  "dark:[--h-border:rgba(255,255,255,0.22)]",
+  "dark:[--h-track:rgba(255,255,255,0.15)]",
+  "dark:[--h-dot:rgba(255,255,255,0.3)]",
+  "dark:[--h-shadow:rgba(255,255,255,0.25)]",
+  "dark:[--h-icon:#FFCA3A]",
+  "dark:[--h-ghost:rgba(255,255,255,0.18)]",
+].join(" ");
 
-const textWrap: Variants = {
+// Reusable inline text colors (inline styles can't be overridden by global CSS)
+const fg: CSSProperties = { color: "var(--h-fg)" };
+const muted: CSSProperties = { color: "var(--h-muted)" };
+const subtle: CSSProperties = { color: "var(--h-subtle)" };
+// Text that turns dark when a yellow hover background appears
+const btnFg: CSSProperties = { color: "var(--btn-fg, var(--h-fg))" };
+
+const textContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.09 } },
-  exit: { opacity: 0, x: -24, transition: { duration: 0.2 } },
+  show: { transition: { staggerChildren: 0.08 } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.2 } },
 };
 
-const rise: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+const textItem: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
 };
-
-const lineUp: Variants = {
-  hidden: { y: "115%" },
-  show: { y: 0, transition: { duration: 0.6, ease: EASE } },
-};
-
-function MarqueeRow({ ariaHidden }: { ariaHidden?: boolean }) {
-  const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
-  return (
-    <div className="flex shrink-0 items-center" aria-hidden={ariaHidden}>
-      {items.map((text, i) => (
-        <div key={`${text}-${i}`} className="flex items-center">
-          <span className="whitespace-nowrap px-7 text-sm font-extrabold text-[#FFB900] dark:text-black">
-            {text}
-          </span>
-          <span className="h-2 w-2 rotate-45 bg-white dark:bg-black" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Marquee({ animate }: { animate: boolean }) {
-  return (
-    <div className="relative overflow-hidden bg-zinc-950 py-3 dark:bg-[#FFB900]">
-      <motion.div
-        className="flex w-max"
-        animate={animate ? { x: ["0%", "-50%"] } : { x: "0%" }}
-        transition={
-          animate
-            ? { duration: 34, ease: "linear", repeat: Infinity }
-            : { duration: 0 }
-        }
-      >
-        <MarqueeRow />
-        <MarqueeRow ariaHidden />
-      </motion.div>
-    </div>
-  );
-}
 
 export default function HeroSection() {
-  const reduceMotion = useReducedMotion();
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
-  const slide = SLIDES[index];
-  const next = () => setIndex((p) => (p + 1) % TOTAL);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [pressed, setPressed] = useState(false);
+  const [pageHidden, setPageHidden] = useState(false);
+  const [failedImages, setFailedImages] = useState<string[]>([]);
 
-  // Press and hold (mouse or finger) pauses; release resumes
-  const hold = () => setPaused(true);
-  const release = () => setPaused(false);
+  const progressRef = useRef(0);
 
-  // The progress bar drives timing: when its animation ends, go to the next slide.
-  // Pausing the animation pauses the slide, so it resumes exactly where it stopped.
-  const renderFill = (className: string) => (
-    <span
-      className={`absolute origin-left bg-[#FFB900] ${className}`}
-      style={
-        reduceMotion
-          ? { transform: "scaleX(1)" }
-          : {
-              animation: `heroFill ${SLIDE_DURATION}s linear forwards`,
-              animationPlayState: paused ? "paused" : "running",
-            }
+  const activeSlide = slides[activeIndex];
+  const isPaused = pressed || pageHidden || Boolean(shouldReduceMotion);
+
+  const goToSlide = useCallback((index: number) => {
+    progressRef.current = 0;
+    setProgress(0);
+    setActiveIndex((index + slides.length) % slides.length);
+  }, []);
+
+  const nextSlide = useCallback(() => {
+    goToSlide(activeIndex + 1);
+  }, [activeIndex, goToSlide]);
+
+  const previousSlide = useCallback(() => {
+    goToSlide(activeIndex - 1);
+  }, [activeIndex, goToSlide]);
+
+  // Pause when the browser tab is hidden
+  useEffect(() => {
+    const onVisibility = () => {
+      setPageHidden(document.visibilityState === "hidden");
+    };
+
+    onVisibility();
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
+
+  // Release "press" even if the pointer is released outside the section
+  useEffect(() => {
+    const release = () => setPressed(false);
+
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    window.addEventListener("blur", release);
+
+    return () => {
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      window.removeEventListener("blur", release);
+    };
+  }, []);
+
+  // Autoplay with accurate progress
+  useEffect(() => {
+    if (isPaused) return;
+
+    let last = performance.now();
+
+    const timer = window.setInterval(() => {
+      const now = performance.now();
+      progressRef.current += ((now - last) / INTERVAL) * 100;
+      last = now;
+
+      if (progressRef.current >= 100) {
+        progressRef.current = 0;
+        setProgress(0);
+        setActiveIndex((current) => (current + 1) % slides.length);
+        return;
       }
-      onAnimationEnd={(e) => {
-        if (e.animationName === "heroFill") next();
-      }}
-    />
-  );
+
+      setProgress(progressRef.current);
+    }, TICK);
+
+    return () => window.clearInterval(timer);
+  }, [isPaused]);
+
+  // Preload the next slide image
+  useEffect(() => {
+    const next = slides[(activeIndex + 1) % slides.length];
+    const preloader = new window.Image();
+    preloader.src = next.image;
+  }, [activeIndex]);
+
+  // Keyboard navigation (ignored while typing in a field)
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (event.key === "ArrowRight") nextSlide();
+      if (event.key === "ArrowLeft") previousSlide();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [nextSlide, previousSlide]);
+
+  const markImageFailed = (id: string) => {
+    setFailedImages((current) =>
+      current.includes(id) ? current : [...current, id],
+    );
+  };
+
+  const visualTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { duration: 0.55, ease: "easeOut" as const };
 
   return (
     <section
-      onPointerDown={hold}
-      onPointerUp={release}
-      onPointerLeave={release}
-      onPointerCancel={release}
+      aria-label="Featured electronics"
       aria-roledescription="carousel"
-      aria-label="Featured products"
-      className="relative select-none overflow-hidden bg-zinc-50 transition-colors duration-300 [-webkit-touch-callout:none] dark:bg-zinc-950"
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerCancel={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+      onDragStart={(event) => event.preventDefault()}
+      style={{ backgroundColor: "var(--h-bg)", color: "var(--h-fg)" }}
+      className={`relative isolate overflow-hidden ${THEME_VARS}`}
     >
-      <style>{`@keyframes heroFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}`}</style>
+      {/* Soft slide tint */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 transition-[background] duration-700"
+        style={{
+          background: `linear-gradient(120deg, ${activeSlide.accent}24 0%, transparent 55%)`,
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-28 -top-28 -z-10 h-80 w-80 rounded-full opacity-20 blur-3xl transition-colors duration-700"
+        style={{ backgroundColor: activeSlide.accent }}
+      />
 
-      <div className="grid lg:min-h-[680px] lg:grid-cols-[1fr_1.05fr]">
-        {/* ============ Left: text ============ */}
-        <div className="relative order-2 flex flex-col justify-center overflow-hidden px-4 py-12 sm:px-6 lg:order-1 lg:py-16 lg:pl-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:pr-10">
-          {/* Giant outline slide number */}
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={`num-${slide.id}`}
-              aria-hidden="true"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: reduceMotion ? 0 : 0.5 }}
-              className="pointer-events-none absolute -bottom-10 right-2 hidden text-[17rem] font-black leading-none text-transparent [--stroke:rgba(24,24,27,0.14)] lg:block dark:[--stroke:rgba(255,255,255,0.14)]"
-              style={{ WebkitTextStroke: "2px var(--stroke)" }}
-            >
-              {String(index + 1).padStart(2, "0")}
-            </motion.span>
-          </AnimatePresence>
-
-          <div className="relative z-10">
-            {/* Counter */}
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-black tabular-nums text-zinc-950 dark:text-white">
-                <span className="bg-[#FFB900] px-2 py-1 text-black">
-                  {String(index + 1).padStart(2, "0")}
-                </span>{" "}
-                <span className="text-zinc-500 dark:text-zinc-400">
-                  / {String(TOTAL).padStart(2, "0")}
-                </span>
-              </span>
-              <span className="h-px w-14 bg-zinc-400 dark:bg-zinc-600" />
-              <AnimatePresence>
-                {paused && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="border-2 border-zinc-950 bg-[#FFB900] px-2 py-0.5 text-xs font-extrabold text-black"
-                  >
-                    Paused
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Changing text */}
-            <AnimatePresence mode="wait">
+      <div className="mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pb-10 lg:pt-12">
+        {/* Main hero */}
+        <div className="grid items-center gap-10 lg:min-h-[480px] lg:grid-cols-2 lg:gap-14">
+          {/* Text content */}
+          <div className="relative z-10 order-2 flex flex-col items-start lg:order-1">
+            <AnimatePresence mode="wait" initial={false}>
               <motion.div
-                key={`text-${slide.id}`}
-                variants={textWrap}
-                initial="hidden"
+                key={activeSlide.id}
+                variants={textContainer}
+                initial={shouldReduceMotion ? false : "hidden"}
                 animate="show"
-                exit="exit"
-                className="mt-7"
+                exit={shouldReduceMotion ? undefined : "exit"}
+                className="w-full"
               >
-                <motion.span
-                  variants={rise}
-                  className="inline-flex items-center gap-2.5 text-sm font-extrabold text-zinc-950 dark:text-white"
+                <motion.div
+                  variants={textItem}
+                  style={{ backgroundColor: "var(--h-surface)" }}
+                  className="mb-5 inline-flex items-center gap-2.5 border border-[#E0A000] px-3.5 py-2"
                 >
-                  <span className="h-3 w-3 bg-[#FFB900]" />
-                  {slide.category}
-                </motion.span>
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FFB900] opacity-60" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-[#E0A000]" />
+                  </span>
+                  <span
+                    style={fg}
+                    className="text-[10px] font-extrabold tracking-[0.22em] sm:text-xs"
+                  >
+                    {activeSlide.eyebrow}
+                  </span>
+                </motion.div>
 
-                <h1 className="mt-4 text-4xl font-black leading-[1.04] tracking-tight text-zinc-950 [--ink:#09090b] sm:text-5xl xl:text-6xl 2xl:text-7xl dark:text-white dark:[--ink:#ffffff]">
-                  <span className="block overflow-hidden pb-1.5">
-                    <motion.span variants={lineUp} className="block">
-                      {slide.lines[0]}
-                    </motion.span>
-                  </span>
-                  <span className="block overflow-hidden pb-2">
+                <motion.h1
+                  variants={textItem}
+                  style={fg}
+                  className="max-w-xl text-[clamp(2.5rem,5.4vw,4.7rem)] font-black leading-[1.02] tracking-[-0.055em]"
+                >
+                  {activeSlide.title}{" "}
+                  <span className="relative inline-block">
+                    <span className="relative z-10">{activeSlide.highlight}</span>
                     <motion.span
-                      variants={lineUp}
-                      className="block text-transparent"
-                      style={{ WebkitTextStroke: "2px var(--ink)" }}
-                    >
-                      {slide.lines[1]}
-                    </motion.span>
+                      aria-hidden="true"
+                      className="absolute -bottom-[0.04em] left-0 z-0 h-[0.14em] w-full origin-left"
+                      style={{ backgroundColor: activeSlide.accent }}
+                      initial={shouldReduceMotion ? false : { scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{
+                        delay: shouldReduceMotion ? 0 : 0.4,
+                        duration: shouldReduceMotion ? 0 : 0.5,
+                        ease: "easeOut",
+                      }}
+                    />
                   </span>
-                </h1>
+                </motion.h1>
 
                 <motion.p
-                  variants={rise}
-                  className="mt-5 min-h-[3.25rem] max-w-md text-base leading-relaxed text-zinc-700 sm:text-lg dark:text-zinc-300"
+                  variants={textItem}
+                  style={muted}
+                  className="mt-6 max-w-lg border-l-2 border-[#FFB900] pl-4 text-sm font-medium leading-7 sm:text-base sm:leading-8"
                 >
-                  {slide.text}
+                  {activeSlide.description}
                 </motion.p>
+
+                <motion.div
+                  variants={textItem}
+                  className="mt-7 flex flex-wrap items-center gap-3"
+                >
+                  <Link
+                    href={`/products?category=${encodeURIComponent(activeSlide.category)}`}
+                    style={{ color: "#18181B" }}
+                    className="group inline-flex min-h-12 items-center justify-center gap-2 bg-[#FFB900] px-6 py-3 text-sm font-bold shadow-[4px_4px_0_var(--h-shadow)] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#FFC62E] hover:shadow-[6px_6px_0_var(--h-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--h-fg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--h-bg)] active:translate-x-0 active:translate-y-0 active:shadow-none"
+                  >
+                    Shop {activeSlide.category}
+                    <FiArrowRight
+                      className="transition-transform duration-200 group-hover:translate-x-1"
+                      size={18}
+                    />
+                  </Link>
+
+                  <Link
+                    href="/products"
+                    style={{ ...fg, backgroundColor: "var(--h-surface)" }}
+                    className="group inline-flex min-h-12 items-center justify-center gap-2 border border-[color:var(--h-border)] px-6 py-3 text-sm font-bold transition-all duration-200 hover:border-[#E0A000] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFB900]"
+                  >
+                    Shop All
+                    <FiArrowDownRight
+                      className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:translate-y-0.5"
+                      size={17}
+                    />
+                  </Link>
+                </motion.div>
+
+                <motion.div
+                  variants={textItem}
+                  style={muted}
+                  className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <FiCheck className="text-emerald-600" size={15} />
+                    Easy online shopping
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <FiCheck className="text-emerald-600" size={15} />
+                    Secure checkout
+                  </span>
+                </motion.div>
               </motion.div>
             </AnimatePresence>
 
-            {/* Buttons */}
-            <motion.div
-              initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5, ease: EASE }}
-              className="mt-7 flex flex-wrap items-center gap-4"
-            >
-              <Link
-                href={`/products?category=${encodeURIComponent(slide.category)}`}
-                className="group inline-flex items-center gap-3 bg-[#FFB900] px-8 py-4 text-sm font-extrabold text-black shadow-[6px_6px_0_0_#18181b] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[3px_3px_0_0_#18181b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FFB900] dark:shadow-[6px_6px_0_0_#ffffff33] dark:hover:shadow-[3px_3px_0_0_#ffffff33]"
+            {/* Slider controls */}
+            <div className="mt-8 flex w-full max-w-md items-center gap-3">
+              <button
+                type="button"
+                onClick={previousSlide}
+                aria-label="Previous slide"
+                style={{ ...btnFg, backgroundColor: "var(--h-surface)" }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center border border-[color:var(--h-border)] transition hover:border-[#FFB900] hover:bg-[#FFB900] hover:[--btn-fg:#18181B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFB900]"
               >
-                Shop now
-                <FiArrowRight
-                  size={17}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </Link>
-              <Link
-                href="/products"
-                className="border-2 border-zinc-950 px-8 py-3.5 text-sm font-extrabold text-zinc-950 transition-colors hover:bg-zinc-950 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FFB900] dark:border-white/70 dark:text-white dark:hover:border-[#FFB900] dark:hover:bg-[#FFB900] dark:hover:text-black"
-              >
-                View all products
-              </Link>
-            </motion.div>
+                <FiChevronLeft size={20} />
+              </button>
 
-            {/* Trust */}
-            <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-3 border-t-2 border-zinc-950 pt-5 dark:border-zinc-700">
-              {TRUST.map((t) => (
-                <li
-                  key={t}
-                  className="flex items-center gap-2 text-sm font-bold text-zinc-800 dark:text-zinc-200"
-                >
-                  <span className="flex h-5 w-5 items-center justify-center bg-zinc-950 text-[#FFB900] dark:bg-[#FFB900] dark:text-black">
-                    <FiCheck size={13} strokeWidth={3.5} />
+              <div className="min-w-0 flex-1">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span
+                    style={fg}
+                    className="truncate text-xs font-bold"
+                  >
+                    {String(activeIndex + 1).padStart(2, "0")}
+                    <span style={subtle} className="mx-1.5">
+                      /
+                    </span>
+                    {String(slides.length).padStart(2, "0")}
+                    <span style={muted} className="ml-2 font-semibold">
+                      {activeSlide.category}
+                    </span>
                   </span>
-                  {t}
-                </li>
+                  <span
+                    style={subtle}
+                    className="text-[10px] font-bold tracking-widest"
+                  >
+                    FEATURED
+                  </span>
+                </div>
+
+                <div
+                  className="h-1 overflow-hidden"
+                  style={{ backgroundColor: "var(--h-track)" }}
+                  role="progressbar"
+                  aria-label="Slide progress"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(progress)}
+                >
+                  <div
+                    className="h-full bg-[#FFB900]"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={nextSlide}
+                aria-label="Next slide"
+                style={{ ...btnFg, backgroundColor: "var(--h-surface)" }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center border border-[color:var(--h-border)] transition hover:border-[#FFB900] hover:bg-[#FFB900] hover:[--btn-fg:#18181B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFB900]"
+              >
+                <FiChevronRight size={20} />
+              </button>
+            </div>
+
+            {/* Slide selectors */}
+            <div className="mt-3 flex flex-wrap items-center">
+              {slides.map((slide, index) => (
+                <button
+                  key={slide.id}
+                  type="button"
+                  onClick={() => goToSlide(index)}
+                  aria-label={`Show ${slide.category}`}
+                  aria-current={activeIndex === index ? "true" : undefined}
+                  className="group flex h-6 items-center px-1 focus-visible:outline-none"
+                >
+                  <span
+                    style={
+                      activeIndex === index
+                        ? undefined
+                        : { backgroundColor: "var(--h-dot)" }
+                    }
+                    className={`block h-2 transition-all duration-300 group-focus-visible:ring-2 group-focus-visible:ring-[#FFB900] group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-[color:var(--h-bg)] ${
+                      activeIndex === index
+                        ? "w-8 bg-[#FFB900]"
+                        : "w-2 group-hover:opacity-60"
+                    }`}
+                  />
+                </button>
               ))}
-            </ul>
+            </div>
+          </div>
+
+          {/* Product visual */}
+          <div className="relative order-1 mx-auto w-full max-w-[440px] select-none [-webkit-touch-callout:none] lg:order-2 lg:max-w-[480px]">
+            {/* Decorative circles */}
+            <div
+              aria-hidden="true"
+              className="absolute -left-8 -top-8 hidden h-40 w-40 rounded-full border border-dashed border-[color:var(--h-border)] sm:block"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute -bottom-10 -right-6 hidden h-28 w-28 rounded-full border border-[color:var(--h-border)] sm:block"
+            />
+
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={activeSlide.id}
+                initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95, x: 20 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.97, x: -12 }}
+                transition={visualTransition}
+                className="relative pb-6 pr-3 pt-3"
+              >
+                {/* Ghost outline number */}
+                <span
+                  aria-hidden="true"
+                  style={{
+                    color: "transparent",
+                    WebkitTextStroke: "1.5px var(--h-ghost)",
+                  }}
+                  className="pointer-events-none absolute -left-4 -top-12 hidden select-none text-[9rem] font-black leading-none sm:block"
+                >
+                  {String(activeIndex + 1).padStart(2, "0")}
+                </span>
+
+                {/* Offset brand square behind image */}
+                <div
+                  aria-hidden="true"
+                  className="absolute bottom-3 right-0 top-6 w-[92%] bg-[#FFB900]"
+                />
+
+                <div
+                  style={{ backgroundColor: "var(--h-surface)" }}
+                  className="group relative z-10 aspect-square w-[92%] overflow-hidden border border-[color:var(--h-border)] shadow-xl shadow-zinc-900/10"
+                >
+                  {failedImages.includes(activeSlide.id) ? (
+                    <div
+                      style={{ backgroundColor: "#F4F4F5", color: "#3F3F46" }}
+                      className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-8 text-center"
+                    >
+                      <FiHeadphones size={42} />
+                      <p className="text-sm font-semibold">{activeSlide.product}</p>
+                      <p className="text-xs">Product image unavailable</p>
+                    </div>
+                  ) : (
+                    <Image
+                      src={activeSlide.image}
+                      alt={activeSlide.product}
+                      fill
+                      draggable={false}
+                      priority={activeIndex === 0}
+                      sizes="(max-width: 640px) 85vw, (max-width: 1024px) 45vw, 480px"
+                      className="pointer-events-none object-cover transition-transform duration-700 group-hover:scale-105"
+                      onError={() => markImageFailed(activeSlide.id)}
+                    />
+                  )}
+
+                  <div
+                    style={{
+                      backgroundColor: "var(--h-fg)",
+                      color: "var(--h-bg)",
+                    }}
+                    className="absolute left-0 top-0 px-3 py-2 text-[9px] font-extrabold tracking-[0.15em] sm:text-[10px]"
+                  >
+                    {activeSlide.tag}
+                  </div>
+                </div>
+
+                {/* Circle discount badge */}
+                <div
+                  style={{
+                    backgroundColor: "#09090B",
+                    boxShadow: "0 0 0 4px var(--h-bg)",
+                  }}
+                  className="absolute right-0 top-0 z-20 flex h-[72px] w-[72px] flex-col items-center justify-center rounded-full sm:h-20 sm:w-20"
+                >
+                  <span
+                    style={{ color: "#FFB900" }}
+                    className="text-lg font-black leading-none sm:text-xl"
+                  >
+                    {activeSlide.discount}
+                  </span>
+                  <span
+                    style={{ color: "#FFFFFF" }}
+                    className="mt-0.5 text-[9px] font-extrabold tracking-widest"
+                  >
+                    OFF
+                  </span>
+                </div>
+
+                {/* Floating product card */}
+                <div
+                  style={{ backgroundColor: "var(--h-surface)" }}
+                  className="absolute -bottom-1 left-0 z-20 w-[78%] max-w-[300px] border border-[color:var(--h-border)] p-4 shadow-xl shadow-zinc-900/10"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p
+                        style={subtle}
+                        className="mb-1 text-[9px] font-extrabold tracking-[0.17em] sm:text-[10px]"
+                      >
+                        FEATURED PRODUCT
+                      </p>
+                      <h2
+                        style={fg}
+                        className="truncate text-sm font-bold"
+                      >
+                        {activeSlide.product}
+                      </h2>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                        <span
+                          style={fg}
+                          className="text-base font-black sm:text-lg"
+                        >
+                          {activeSlide.price}
+                        </span>
+                        <span
+                          style={subtle}
+                          className="text-xs font-medium line-through"
+                        >
+                          {activeSlide.oldPrice}
+                        </span>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/products?category=${encodeURIComponent(activeSlide.category)}`}
+                      aria-label={`Shop ${activeSlide.product}`}
+                      style={{ color: "#18181B" }}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#FFB900] transition hover:bg-[#FFC62E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--h-fg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--h-surface)]"
+                    >
+                      <FiArrowRight size={19} />
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 
-        {/* ============ Right: image panel ============ */}
-        <div className="relative order-1 h-[380px] sm:h-[480px] lg:order-2 lg:h-auto">
-          {/* Yellow diagonal edge */}
-          <div className="absolute inset-0 bg-[#FFB900] lg:[clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]" />
+        {/* Benefits */}
+        <div className="mt-12 grid grid-cols-2 gap-3 border-t border-[color:var(--h-border)] pt-6 sm:mt-14 sm:grid-cols-4 sm:gap-4 sm:pt-8">
+          {benefits.map((benefit, index) => {
+            const Icon = benefit.icon;
 
-          {/* Images */}
-          <div className="absolute inset-x-0 top-0 bottom-3 overflow-hidden bg-zinc-900 lg:inset-0 lg:[clip-path:polygon(18%_0,100%_0,100%_100%,4%_100%)]">
-            {SLIDES.map((s, i) => (
+            return (
               <motion.div
-                key={s.id}
-                aria-hidden={i !== index}
-                className="absolute inset-0"
-                style={{ zIndex: i === index ? 1 : 0 }}
-                initial={false}
-                animate={{
-                  opacity: i === index ? 1 : 0,
-                  scale: i === index ? 1 : 1.14,
-                }}
-                transition={
-                  reduceMotion
-                    ? { duration: 0 }
-                    : {
-                        opacity: { duration: 0.7, ease: "easeInOut" },
-                        scale: { duration: 2.8, ease: "easeOut" },
-                      }
-                }
-              >
-                <Image
-                  src={s.image}
-                  alt={s.name}
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 52vw, 100vw"
-                  draggable={false}
-                  className="object-cover object-center"
-                />
-              </motion.div>
-            ))}
-            <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-t from-black/50 via-transparent to-black/20" />
-          </div>
-
-          {/* Price card */}
-          <div className="absolute bottom-12 left-4 z-20 w-[calc(100%-2rem)] sm:w-80 lg:bottom-8 lg:left-[24%]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`card-${slide.id}`}
-                initial={{ opacity: 0, y: reduceMotion ? 0 : 18 }}
+                key={benefit.title}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: reduceMotion ? 0 : 0.35, delay: 0.1 }}
-                className="flex items-center justify-between gap-4 bg-white p-4 text-black shadow-[8px_8px_0_0_#18181b] dark:bg-zinc-900 dark:text-white dark:shadow-[8px_8px_0_0_#FFB900]"
+                transition={{
+                  duration: shouldReduceMotion ? 0 : 0.35,
+                  delay: shouldReduceMotion ? 0 : index * 0.06,
+                }}
+                className="group flex items-center gap-3 border border-transparent p-3 transition-colors hover:border-[color:var(--h-border)] hover:bg-[#FFB900]/10 sm:p-4"
               >
+                <span
+                  style={{ color: "var(--ico-fg, var(--h-icon))" }}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#FFB900]/25 transition-colors group-hover:bg-[#FFB900] group-hover:[--ico-fg:#18181B] sm:h-11 sm:w-11"
+                >
+                  <Icon size={20} />
+                </span>
+
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-extrabold sm:text-base">
-                    {slide.name}
-                  </p>
-                  <p className="text-sm font-black text-[#b37f00] dark:text-[#FFB900]">
-                    {slide.price}
+                  <h3
+                    style={fg}
+                    className="truncate text-xs font-bold sm:text-sm"
+                  >
+                    {benefit.title}
+                  </h3>
+                  <p
+                    style={muted}
+                    className="mt-1 truncate text-[10px] leading-4 sm:text-xs"
+                  >
+                    {benefit.description}
                   </p>
                 </div>
-                <Link
-                  href="/products"
-                  aria-label={`View ${slide.name}`}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center bg-[#FFB900] text-black transition-colors hover:bg-black hover:text-[#FFB900] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFB900] dark:hover:bg-white dark:hover:text-black"
-                >
-                  <FiArrowUpRight size={20} />
-                </Link>
               </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Desktop: thumbnails with progress */}
-          <div className="absolute right-6 top-1/2 z-20 hidden -translate-y-1/2 flex-col gap-3 lg:flex">
-            {SLIDES.map((s, i) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={`Show ${s.name}`}
-                aria-current={i === index}
-                className={`relative h-16 w-16 overflow-hidden border-2 transition-all duration-300 ${
-                  i === index
-                    ? "scale-110 border-[#FFB900]"
-                    : "border-white opacity-80 hover:opacity-100"
-                }`}
-              >
-                <Image src={s.image} alt="" fill sizes="64px" className="object-cover" />
-                {i === index && renderFill("inset-x-0 bottom-0 h-1")}
-              </button>
-            ))}
-          </div>
-
-          {/* Mobile: progress bars */}
-          <div className="absolute inset-x-4 bottom-6 z-20 flex gap-2 sm:inset-x-6 lg:hidden">
-            {SLIDES.map((s, i) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={`Show ${s.name}`}
-                aria-current={i === index}
-                className="relative h-1.5 flex-1 overflow-hidden bg-white/40"
-              >
-                {i === index && renderFill("inset-0")}
-              </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
-
-      <Marquee animate={!reduceMotion} />
     </section>
   );
 }
