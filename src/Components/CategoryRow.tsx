@@ -1,89 +1,98 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, type Variants } from "motion/react";
-import { FiArrowRight, FiArrowUpRight } from "react-icons/fi";
+import { motion } from "motion/react";
+import { FiArrowRight, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 type Category = {
   label: string;
   tagline: string;
   image: string;
-  className: string;
+  itemCount: string;
 };
 
 const categories: Category[] = [
   {
     label: "Laptops",
-    tagline: "Work, create and play anywhere",
+    tagline: "Work, create & play",
     image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop",
-    className: "col-span-2 row-span-2",
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=600&auto=format&fit=crop",
+    itemCount: "120+ Items",
   },
   {
     label: "Smartphones",
     tagline: "Latest flagships",
     image:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=900&auto=format&fit=crop",
-    className: "col-span-1 row-span-1",
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=600&auto=format&fit=crop",
+    itemCount: "85+ Items",
   },
   {
     label: "Audio",
-    tagline: "Headphones and speakers",
+    tagline: "Headphones & speakers",
     image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=900&auto=format&fit=crop",
-    className: "col-span-1 row-span-1",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop",
+    itemCount: "64+ Items",
   },
   {
-    label: "Smart watches",
-    tagline: "Track, pay and connect",
+    label: "Smart Watches",
+    tagline: "Track & connect",
     image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=900&auto=format&fit=crop",
-    className: "col-span-1 row-span-1",
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop",
+    itemCount: "45+ Items",
   },
   {
-    label: "TV and displays",
-    tagline: "4K and beyond",
+    label: "TV & Displays",
+    tagline: "4K & Beyond views",
     image:
-      "https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=900&auto=format&fit=crop",
-    className: "col-span-1 row-span-1",
+      "https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=600&auto=format&fit=crop",
+    itemCount: "30+ Items",
+  },
+  {
+    label: "Gaming Gear",
+    tagline: "Pro consoles & gear",
+    image:
+      "https://images.unsplash.com/photo-1599669454699-248893623440?q=80&w=600&auto=format&fit=crop",
+    itemCount: "50+ Items",
   },
 ];
 
-const grid: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.09 } },
-};
-
-const tile: Variants = {
-  hidden: { opacity: 0, y: 30, clipPath: "inset(0 0 100% 0)" },
-  show: {
-    opacity: 1,
-    y: 0,
-    clipPath: "inset(0 0 0% 0)",
-    transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
 export default function CategoryRow() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollAmount = clientWidth * 0.75;
+      scrollRef.current.scrollTo({
+        left: direction === "left" ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
-    <section className="bg-white py-20 sm:py-24 dark:bg-zinc-950">
+    <section className="bg-white py-14 sm:py-20 dark:bg-zinc-950">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+        
+        {/* Header Section */}
+        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
           <div>
-            <span className="mb-4 block h-1 w-12 bg-[#FFB900]" />
-            <h2 className="text-3xl font-black tracking-tight text-zinc-900 sm:text-4xl dark:text-white">
-              Shop by category
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#FFB900]/15 px-3 py-1 text-xs font-bold text-[#b37f00] dark:text-[#FFB900]">
+              <span className="h-2 w-2 rounded-full bg-[#FFB900]" />
+              Explore Collections
+            </div>
+            <h2 className="text-2xl font-black tracking-tight text-zinc-900 sm:text-4xl dark:text-white">
+              Shop by Category
             </h2>
-            <p className="mt-3 max-w-md text-base text-zinc-500 dark:text-zinc-400">
-              Find exactly what you are looking for.
-            </p>
           </div>
+
           <Link
             href="/products"
-            className="group inline-flex items-center gap-2 border-b-2 border-zinc-900 pb-1 text-sm font-extrabold text-zinc-900 transition-colors hover:border-[#FFB900] hover:text-[#b37f00] dark:border-white dark:text-white dark:hover:border-[#FFB900] dark:hover:text-[#FFB900]"
+            className="group inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-xs font-bold text-white transition-all hover:bg-[#FFB900] hover:text-black dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-[#FFB900]"
           >
-            Browse everything
+            Browse All
             <FiArrowRight
               size={16}
               className="transition-transform duration-300 group-hover:translate-x-1"
@@ -91,54 +100,84 @@ export default function CategoryRow() {
           </Link>
         </div>
 
-        <motion.div
-          variants={grid}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
-          className="mt-12 grid auto-rows-[190px] grid-cols-2 gap-3 sm:auto-rows-[230px] sm:gap-4 lg:grid-cols-4"
-        >
-          {categories.map((cat, i) => (
-            <motion.div
-              key={cat.label}
-              variants={tile}
-              className={`${cat.className} ${
-                i === 0 ? "col-span-2 row-span-2 lg:col-span-2" : ""
-              }`}
-            >
-              <Link
-                href={`/products?category=${encodeURIComponent(cat.label)}`}
-                className="group relative block h-full w-full overflow-hidden bg-zinc-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFB900] dark:bg-zinc-800"
-              >
-                <Image
-                  src={cat.image}
-                  alt={cat.label}
-                  fill
-                  sizes="(min-width: 1024px) 25vw, 50vw"
-                  className="object-cover object-center saturate-[0.85] transition-all duration-700 group-hover:scale-110 group-hover:saturate-100"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent" />
+        {/* Carousel Container with Left/Right Absolute Scroll Buttons */}
+        <div className="relative mt-8">
+          
+          {/* Left Scroll Button (Absolute Positioned on Left Side) */}
+          <button
+            type="button"
+            onClick={() => scroll("left")}
+            aria-label="Scroll Left"
+            className="absolute -left-3 sm:-left-5 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-800 shadow-md backdrop-blur-md transition-all hover:border-[#FFB900] hover:bg-[#FFB900] hover:text-black active:scale-95 dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-200"
+          >
+            <FiChevronLeft size={22} />
+          </button>
 
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-5">
-                  <div className="min-w-0">
-                    <span className="block text-lg font-extrabold text-white sm:text-xl lg:text-2xl">
-                      {cat.label}
-                    </span>
-                    {/* Tagline slides up on hover */}
-                    <span className="block max-h-0 translate-y-2 overflow-hidden text-xs text-zinc-200 opacity-0 transition-all duration-500 group-hover:max-h-10 group-hover:translate-y-0 group-hover:opacity-100 sm:text-sm">
-                      {cat.tagline}
+          {/* Right Scroll Button (Absolute Positioned on Right Side) */}
+          <button
+            type="button"
+            onClick={() => scroll("right")}
+            aria-label="Scroll Right"
+            className="absolute -right-3 sm:-right-5 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-800 shadow-md backdrop-blur-md transition-all hover:border-[#FFB900] hover:bg-[#FFB900] hover:text-black active:scale-95 dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-200"
+          >
+            <FiChevronRight size={22} />
+          </button>
+
+          {/* Circular Left-to-Right Slider */}
+          <div
+            ref={scrollRef}
+            className="no-scrollbar flex gap-5 overflow-x-auto scroll-smooth px-2 pb-6 pt-2 sm:gap-6"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {categories.map((cat, i) => (
+              <motion.div
+                key={cat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="flex shrink-0 flex-col items-center"
+              >
+                <Link
+                  href={`/products?category=${encodeURIComponent(cat.label)}`}
+                  className="group flex flex-col items-center text-center focus:outline-none"
+                >
+                  {/* Outer Glow & Circle Avatar Container */}
+                  <div className="relative flex h-32 w-32 items-center justify-center rounded-full border-2 border-dashed border-zinc-300 p-1.5 transition-all duration-500 group-hover:border-[#FFB900] group-hover:shadow-[0_0_25px_rgba(255,185,0,0.35)] sm:h-44 sm:w-44 dark:border-zinc-700">
+                    <div className="relative h-full w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                      <Image
+                        src={cat.image}
+                        alt={cat.label}
+                        fill
+                        sizes="(max-width: 640px) 130px, 180px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      {/* Dark Overlay on Hover */}
+                      <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    </div>
+
+                    {/* Floating Item Count Badge */}
+                    <span className="absolute -bottom-1 rounded-full bg-zinc-900 px-2.5 py-0.5 text-[9px] font-bold text-white shadow-md transition-colors group-hover:bg-[#FFB900] group-hover:text-black sm:px-3 sm:py-1 sm:text-[10px] dark:bg-zinc-100 dark:text-zinc-900">
+                      {cat.itemCount}
                     </span>
                   </div>
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#FFB900] text-black transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 sm:h-11 sm:w-11">
-                    <FiArrowUpRight size={20} />
-                  </span>
-                </div>
 
-                <span className="absolute bottom-0 left-0 h-1 w-0 bg-[#FFB900] transition-all duration-500 group-hover:w-full" />
-              </Link>
-            </motion.div>
-          ))}
-        </motion.div>
+                  {/* Text Content */}
+                  <div className="mt-3.5 max-w-[130px] sm:mt-4 sm:max-w-[180px]">
+                    <h3 className="text-sm font-extrabold text-zinc-900 transition-colors group-hover:text-[#b37f00] sm:text-lg dark:text-white dark:group-hover:text-[#FFB900]">
+                      {cat.label}
+                    </h3>
+                    <p className="mt-0.5 line-clamp-1 text-[11px] text-zinc-500 sm:text-xs dark:text-zinc-400">
+                      {cat.tagline}
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+        </div>
+
       </div>
     </section>
   );
