@@ -169,10 +169,6 @@ const benefits = [
 const INTERVAL = 5000;
 const TICK = 50;
 
-/**
- * Theme variables. Background and text colors always come from the SAME set,
- * so they flip together and can never end up as white-on-white.
- */
 const THEME_VARS = [
   "[--h-bg:#FFFFFF]",
   "[--h-fg:#09090B]",
@@ -198,11 +194,9 @@ const THEME_VARS = [
   "dark:[--h-ghost:rgba(255,255,255,0.18)]",
 ].join(" ");
 
-// Reusable inline text colors (inline styles can't be overridden by global CSS)
 const fg: CSSProperties = { color: "var(--h-fg)" };
 const muted: CSSProperties = { color: "var(--h-muted)" };
 const subtle: CSSProperties = { color: "var(--h-subtle)" };
-// Text that turns dark when a yellow hover background appears
 const btnFg: CSSProperties = { color: "var(--btn-fg, var(--h-fg))" };
 
 const textContainer: Variants = {
@@ -244,7 +238,6 @@ export default function HeroSection() {
     goToSlide(activeIndex - 1);
   }, [activeIndex, goToSlide]);
 
-  // Pause when the browser tab is hidden
   useEffect(() => {
     const onVisibility = () => {
       setPageHidden(document.visibilityState === "hidden");
@@ -256,7 +249,6 @@ export default function HeroSection() {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  // Release "press" even if the pointer is released outside the section
   useEffect(() => {
     const release = () => setPressed(false);
 
@@ -271,7 +263,6 @@ export default function HeroSection() {
     };
   }, []);
 
-  // Autoplay with accurate progress
   useEffect(() => {
     if (isPaused) return;
 
@@ -295,14 +286,12 @@ export default function HeroSection() {
     return () => window.clearInterval(timer);
   }, [isPaused]);
 
-  // Preload the next slide image
   useEffect(() => {
     const next = slides[(activeIndex + 1) % slides.length];
     const preloader = new window.Image();
     preloader.src = next.image;
   }, [activeIndex]);
 
-  // Keyboard navigation (ignored while typing in a field)
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
@@ -708,43 +697,49 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Benefits */}
-        <div className="mt-12 grid grid-cols-2 gap-3 border-t border-[color:var(--h-border)] pt-6 sm:mt-14 sm:grid-cols-4 sm:gap-4 sm:pt-8">
+        {/* =========================================
+            ⬛ SQUARE SHAPE TRUST / BENEFIT CARDS
+            ========================================= */}
+        <div className="mt-14 grid grid-cols-1 gap-4 border-t border-[color:var(--h-border)] pt-8 sm:grid-cols-2 lg:grid-cols-4 sm:gap-5 sm:pt-10">
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;
 
             return (
               <motion.div
                 key={benefit.title}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
-                  duration: shouldReduceMotion ? 0 : 0.35,
-                  delay: shouldReduceMotion ? 0 : index * 0.06,
+                  duration: shouldReduceMotion ? 0 : 0.4,
+                  delay: shouldReduceMotion ? 0 : index * 0.08,
                 }}
-                className="group flex items-center gap-3 border border-transparent p-3 transition-colors hover:border-[color:var(--h-border)] hover:bg-[#FFB900]/10 sm:p-4"
+                className="group relative flex items-center gap-4 border border-[color:var(--h-border)] bg-[color:var(--h-surface)] p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-[#FFB900] hover:shadow-lg hover:shadow-[#FFB900]/10"
               >
+                {/* Clean Square Icon Container */}
                 <span
                   style={{ color: "var(--ico-fg, var(--h-icon))" }}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#FFB900]/25 transition-colors group-hover:bg-[#FFB900] group-hover:[--ico-fg:#18181B] sm:h-11 sm:w-11"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center bg-[#FFB900]/20 transition-all duration-300 group-hover:bg-[#FFB900] group-hover:[--ico-fg:#18181B]"
                 >
-                  <Icon size={20} />
+                  <Icon size={22} />
                 </span>
 
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h3
                     style={fg}
-                    className="truncate text-xs font-bold sm:text-sm"
+                    className="truncate text-sm font-extrabold sm:text-base"
                   >
                     {benefit.title}
                   </h3>
                   <p
                     style={muted}
-                    className="mt-1 truncate text-[10px] leading-4 sm:text-xs"
+                    className="mt-0.5 truncate text-xs leading-relaxed"
                   >
                     {benefit.description}
                   </p>
                 </div>
+
+                {/* Bottom Highlight Border Line on Hover */}
+                <span className="absolute bottom-0 left-0 h-1 w-0 bg-[#FFB900] transition-all duration-300 group-hover:w-full" />
               </motion.div>
             );
           })}
