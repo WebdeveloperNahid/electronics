@@ -1,148 +1,312 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Link from "next/link";
-import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram } from "react-icons/fa";
-import { FiSend } from "react-icons/fi";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaTwitter,
+} from "react-icons/fa";
+import { FiArrowUp, FiChevronRight, FiSend } from "react-icons/fi";
+
+const categories = [
+  { label: "Smartphones", href: "/products?category=Smartphones" },
+  { label: "Laptops", href: "/products?category=Laptops" },
+  { label: "Smart Watches", href: "/products?category=Smart%20Watches" },
+  { label: "Audio & Headphones", href: "/products?category=Audio" },
+  { label: "Gaming", href: "/products?category=Gaming" },
+  { label: "TV & Displays", href: "/products?category=TV%20%26%20Displays" },
+];
+
+const accountLinks = [
+  { label: "My Profile", href: "/profile" },
+  { label: "Order History", href: "#" },
+  { label: "My Wishlist", href: "#" },
+  { label: "Sign In / Register", href: "/login" },
+];
+
+const socials = [
+  { label: "Facebook", icon: FaFacebookF, href: "#" },
+  { label: "Twitter", icon: FaTwitter, href: "#" },
+  { label: "LinkedIn", icon: FaLinkedinIn, href: "#" },
+  { label: "Instagram", icon: FaInstagram, href: "#" },
+];
+
+const payments = ["VISA", "MasterCard", "PayPal", "Stripe"];
+
+/**
+ * Theme variables: background and text always come from the same set,
+ * so they flip together and can never end up unreadable.
+ */
+const THEME_VARS = [
+  "[--f-bg:#FFFFFF]",
+  "[--f-surface:#F4F4F5]",
+  "[--f-fg:#09090B]",
+  "[--f-muted:#3F3F46]",
+  "[--f-subtle:#52525B]",
+  "[--f-border:#D4D4D8]",
+  "[--f-input:#FFFFFF]",
+  "dark:[--f-bg:#09090B]",
+  "dark:[--f-surface:#18181B]",
+  "dark:[--f-fg:#FFFFFF]",
+  "dark:[--f-muted:#D4D4D8]",
+  "dark:[--f-subtle:#A1A1AA]",
+  "dark:[--f-border:rgba(255,255,255,0.14)]",
+  "dark:[--f-input:#111113]",
+].join(" ");
+
+const fg: CSSProperties = { color: "var(--f-fg)" };
+const muted: CSSProperties = { color: "var(--f-muted)" };
+const subtle: CSSProperties = { color: "var(--f-subtle)" };
+
+const inputClass =
+  "w-full border border-[color:var(--f-border)] px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-[color:var(--f-subtle)] focus:border-[#FFB900] focus:ring-1 focus:ring-[#FFB900]";
+
+const inputStyle: CSSProperties = {
+  backgroundColor: "var(--f-input)",
+  color: "var(--f-fg)",
+};
+
+function FooterHeading({ children }: { children: string }) {
+  return (
+    <h3
+      style={fg}
+      className="mb-5 flex items-center gap-2.5 text-sm font-extrabold uppercase tracking-[0.14em]"
+    >
+      <span aria-hidden="true" className="h-3 w-1 bg-[#FFB900]" />
+      {children}
+    </h3>
+  );
+}
+
+function FooterLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      style={{ color: "var(--lk, var(--f-muted))" }}
+      className="group inline-flex items-center gap-1.5 text-sm transition-colors hover:[--lk:var(--f-fg)]"
+    >
+      <FiChevronRight
+        aria-hidden="true"
+        size={13}
+        className="-ml-3.5 text-[#FFB900] opacity-0 transition-all duration-200 group-hover:ml-0 group-hover:opacity-100"
+      />
+      <span>{label}</span>
+    </Link>
+  );
+}
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-zinc-400 text-xs transition-colors">
-      {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
-        
-        {/* Column 1: Brand Info */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-black tracking-wider text-gray-900 dark:text-white uppercase">
-              ElectroShop
-            </span>
-          </div>
-          <p className="text-gray-500 dark:text-zinc-400 leading-relaxed">
-            Your ultimate destination for high-end electronics, latest smartphones, smart gadgets, and cutting-edge home appliances. Quality and innovation delivered to your doorstep.
+    <footer
+      style={{
+        backgroundColor: "var(--f-bg)",
+        color: "var(--f-muted)",
+        borderTop: "1px solid var(--f-border)",
+      }}
+      className={THEME_VARS}
+    >
+      {/* Top brand strip */}
+      <div className="bg-[#FFB900]">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-4 py-5 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+          <p
+            style={{ color: "#18181B" }}
+            className="text-base font-extrabold tracking-tight sm:text-lg"
+          >
+            Upgrade your tech. Shop smarter with ElectroShop.
           </p>
-          {/* Social Icons */}
-          <div className="flex items-center gap-3 mt-2">
-            <a href="#" className="w-8 h-8 rounded bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 flex items-center justify-center hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500 dark:hover:text-white transition-colors">
-              <FaFacebookF size={12} />
-            </a>
-            <a href="#" className="w-8 h-8 rounded bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 flex items-center justify-center hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500 dark:hover:text-white transition-colors">
-              <FaTwitter size={12} />
-            </a>
-            <a href="#" className="w-8 h-8 rounded bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 flex items-center justify-center hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500 dark:hover:text-white transition-colors">
-              <FaLinkedinIn size={12} />
-            </a>
-            <a href="#" className="w-8 h-8 rounded bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 flex items-center justify-center hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500 dark:hover:text-white transition-colors">
-              <FaInstagram size={12} />
-            </a>
-          </div>
-        </div>
 
-        {/* Column 2: Quick Links / Categories */}
-        <div>
-          <h3 className="text-gray-900 dark:text-white font-semibold uppercase tracking-wider mb-4 text-sm">
-            Categories
-          </h3>
-          <ul className="space-y-2.5">
-            <li>
-              <Link href="#" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                Smartphones & Tablets
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                Laptops & Computers
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                Smart Gadgets
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                Home Appliances
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                Audio & Headphones
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Column 3: My Account */}
-        <div>
-          <h3 className="text-gray-900 dark:text-white font-semibold uppercase tracking-wider mb-4 text-sm">
-            My Account
-          </h3>
-          <ul className="space-y-2.5">
-            <li>
-              <Link href="/profile" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                My Profile
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                Order History
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                My Wishlist
-              </Link>
-            </li>
-            <li>
-              <Link href="/login" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                Sign In / Register
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Column 4: Get In Touch */}
-        <div>
-          <h3 className="text-gray-900 dark:text-white font-semibold uppercase tracking-wider mb-4 text-sm">
-            Get In Touch
-          </h3>
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-3">
-            <input
-              type="text"
-              placeholder="Your Name"
-              className="w-full bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 px-3 py-2 text-gray-900 dark:text-white outline-none focus:border-orange-500 dark:focus:border-orange-500 transition-colors"
-            />
-            <input
-              type="email"
-              placeholder="Your Email"
-              className="w-full bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 px-3 py-2 text-gray-900 dark:text-white outline-none focus:border-orange-500 dark:focus:border-orange-500 transition-colors"
-            />
-            <textarea
-              placeholder="Your Message"
-              rows={2}
-              className="w-full bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 px-3 py-2 text-gray-900 dark:text-white outline-none focus:border-orange-500 dark:focus:border-orange-500 transition-colors resize-none"
-            ></textarea>
-            <button
-              type="submit"
-              className="w-full bg-orange-500 text-white font-semibold py-2.5 uppercase tracking-wider hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-sm"
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/products"
+              style={{ color: "#FFFFFF", backgroundColor: "#18181B" }}
+              className="inline-flex min-h-10 items-center gap-2 px-5 py-2 text-sm font-bold transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#18181B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFB900]"
             >
-              <span>Submit Message</span>
-              <FiSend size={13} />
-            </button>
-          </form>
-        </div>
+              Browse Products
+            </Link>
 
-      </div>
-d
-      {/* Bottom Sub-footer (Copyright & Payments) */}
-      <div className="border-t border-gray-100 dark:border-zinc-800/80 py-6">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-gray-400 dark:text-zinc-500">
-          <p>© 2026 ElectroShop. All Rights Reserved.</p>
-          <div className="flex items-center gap-2 opacity-70">
-            <span className="border border-gray-200 dark:border-zinc-700 px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-50 dark:bg-zinc-800">VISA</span>
-            <span className="border border-gray-200 dark:border-zinc-700 px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-50 dark:bg-zinc-800">MasterCard</span>
-            <span className="border border-gray-200 dark:border-zinc-700 px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-50 dark:bg-zinc-800">PayPal</span>
-            <span className="border border-gray-200 dark:border-zinc-700 px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-50 dark:bg-zinc-800">Stripe</span>
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              aria-label="Back to top"
+              style={{ color: "#18181B" }}
+              className="flex h-10 w-10 items-center justify-center border-2 border-[#18181B] transition-colors hover:bg-[#18181B] hover:text-[#FFB900] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#18181B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFB900]"
+            >
+              <FiArrowUp size={18} />
+            </button>
           </div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+          {/* Brand */}
+          <div className="flex flex-col gap-5 sm:col-span-2 lg:col-span-4 lg:pr-6">
+            <Link
+              href="/"
+              aria-label="ElectroShop home"
+              style={fg}
+              className="inline-flex items-center text-2xl font-black uppercase tracking-wide"
+            >
+              Electro
+              <span
+                style={{ color: "#18181B" }}
+                className="ml-1 bg-[#FFB900] px-1.5"
+              >
+                Shop
+              </span>
+            </Link>
+
+            <p style={muted} className="max-w-sm text-sm leading-7">
+              Your destination for quality electronics, smartphones, smart
+              gadgets and home appliances, delivered right to your doorstep.
+            </p>
+
+            <div className="flex items-center gap-2">
+              {socials.map(({ label, icon: Icon, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  style={{
+                    color: "var(--s-fg, var(--f-fg))",
+                    backgroundColor: "var(--f-surface)",
+                  }}
+                  className="flex h-10 w-10 items-center justify-center border border-[color:var(--f-border)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FFB900] hover:bg-[#FFB900] hover:[--s-fg:#18181B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFB900]"
+                >
+                  <Icon size={14} />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div className="lg:col-span-2">
+            <FooterHeading>Categories</FooterHeading>
+            <ul className="space-y-3">
+              {categories.map((item) => (
+                <li key={item.label}>
+                  <FooterLink href={item.href} label={item.label} />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* My Account */}
+          <div className="lg:col-span-2">
+            <FooterHeading>My Account</FooterHeading>
+            <ul className="space-y-3">
+              {accountLinks.map((item) => (
+                <li key={item.label}>
+                  <FooterLink href={item.href} label={item.label} />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact form */}
+          <div className="sm:col-span-2 lg:col-span-4">
+            <FooterHeading>Get In Touch</FooterHeading>
+
+            <form
+              onSubmit={(event) => event.preventDefault()}
+              className="space-y-3"
+            >
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="footer-name" className="sr-only">
+                    Your name
+                  </label>
+                  <input
+                    id="footer-name"
+                    name="name"
+                    type="text"
+                    required
+                    autoComplete="name"
+                    placeholder="Your Name"
+                    style={inputStyle}
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="footer-email" className="sr-only">
+                    Your email
+                  </label>
+                  <input
+                    id="footer-email"
+                    name="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="Your Email"
+                    style={inputStyle}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="footer-message" className="sr-only">
+                  Your message
+                </label>
+                <textarea
+                  id="footer-message"
+                  name="message"
+                  rows={3}
+                  required
+                  placeholder="Your Message"
+                  style={inputStyle}
+                  className={`${inputClass} resize-none`}
+                />
+              </div>
+
+              <button
+                type="submit"
+                style={{ color: "#18181B" }}
+                className="group inline-flex min-h-11 w-full items-center justify-center gap-2 bg-[#FFB900] px-5 py-2.5 text-sm font-bold uppercase tracking-wider shadow-[4px_4px_0_var(--f-fg)] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#FFC62E] hover:shadow-[6px_6px_0_var(--f-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--f-fg)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--f-bg)] active:translate-x-0 active:translate-y-0 active:shadow-none"
+              >
+                Submit Message
+                <FiSend
+                  size={15}
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                />
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div
+        style={{
+          backgroundColor: "var(--f-surface)",
+          borderTop: "1px solid var(--f-border)",
+        }}
+      >
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 sm:flex-row sm:px-6 lg:px-8">
+          <p style={subtle} className="text-xs font-medium">
+            © {year} ElectroShop. All Rights Reserved.
+          </p>
+
+          <ul
+            className="flex flex-wrap items-center justify-center gap-2"
+            aria-label="Accepted payment methods"
+          >
+            {payments.map((payment) => (
+              <li
+                key={payment}
+                style={{ ...fg, backgroundColor: "var(--f-bg)" }}
+                className="border border-[color:var(--f-border)] px-2.5 py-1 text-[10px] font-bold tracking-wide"
+              >
+                {payment}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>
